@@ -1,0 +1,68 @@
+services:
+  db:
+    image: mysql:8
+    container_name: mysql_db_4thewords
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_USER_ROOT}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_4thewords:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
+
+  minio:
+    image: minio/minio
+    container_name: minio_storage_4thewords
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+      MINIO_BUCKET_NAME: ${S3_BUCKET_NAME}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server --console-address ":9001" /data/minio
+    volumes:
+      - minio_4thewords:/data/minio
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: ["/bin/sh", "/config/init.sh"]
+    volumes:
+      - ./s3/init.sh:/config/init.sh
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET: ${S3_BUCKET_NAME}
+
+  app:
+    build: .
+    container_name: fastapi_app_4thewords
+    depends_on:
+      - db
+      - minio-init
+    environment:
+      DB_HOST: db
+      DB_USER_ROOT: ${DB_USER_ROOT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS}
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+
+volumes:
+  mysql_4thewords:
+  minio_4thewords:

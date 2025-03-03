@@ -1,0 +1,18 @@
+env/
+*__pycache__*
+.vscode
+logs
+requirements_dev*
+xls
+
+# dependencies
+/node_modules
+package-lock.json
+yarn.lock
+*.csv
+*.xls
+
+data/minio/*
+data/mysql/*
+
+.env
