@@ -73,8 +73,8 @@ La estructura de carpetas del proyecto es la siguiente:
 1. Clona el repositorio:
 
    ```sh
-   git clone <URL_DEL_REPOSITORIO>
-   cd <NOMBRE_DEL_REPOSITORIO>
+   git clone https://github.com/d45h2147/4thewords_backend_daren_salazar.git
+   cd https://github.com/d45h2147/4thewords_backend_daren_salazar.git
    ```
 
 2. Crea un archivo [.env](http://_vscodecontentref_/8) basado en [.env.example](http://_vscodecontentref_/9) y actualiza las variables de entorno según sea necesario:
